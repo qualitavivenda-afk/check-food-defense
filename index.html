@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist Food Defense – Ristorazione scolastica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6f5; --card:#fff; --ink:#1c2b26; --muted:#5f6f69; --line:#e2e8e5;
+    --brand:#1f6f54; --brand-soft:#e5f2ec;
+    --c:#2e8b57; --c-soft:#e3f4ea; --nc:#c0392b; --nc-soft:#fbe7e4; --na:#7b8a85; --na-soft:#eef1f0;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#111816; --card:#1a2420; --ink:#e7eeeb; --muted:#9aaba4; --line:#2b3833;
+      --brand:#5cc49a; --brand-soft:#1f3a30; --c:#5cc48a; --c-soft:#1d3a2a; --nc:#f07a6b; --nc-soft:#45231f; --na:#9aaba4; --na-soft:#26302c; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  .wrap{max-width:860px;margin:0 auto;padding:16px 14px 120px}
+  header h1{font-size:20px;margin:6px 0 2px;letter-spacing:-.01em}
+  header p{margin:0;color:var(--muted);font-size:13px}
+  .tag{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:600;font-size:11px;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+  input,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%}
+  input:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:0;border-color:transparent}
+  .sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 8px;margin-top:6px}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .25s}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--card);border:1px solid var(--line)}
+  .pill.c{color:var(--c)} .pill.nc{color:var(--nc)} .pill.na{color:var(--na)}
+  .filters{margin-left:auto;display:flex;gap:4px}
+  .filters button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:5px 10px;border-radius:99px;cursor:pointer}
+  .filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  details.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-top:12px;overflow:hidden}
+  details.sec>summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:center;gap:10px;font-weight:700}
+  details.sec>summary::-webkit-details-marker{display:none}
+  .num{width:28px;height:28px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:13px;flex:none}
+  .sec-meta{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .sec-meta .ncb{color:var(--nc)}
+  .chev{transition:transform .2s;color:var(--muted)} details[open] .chev{transform:rotate(90deg)}
+  .item{border-top:1px solid var(--line);padding:12px 14px}
+  .item.is-c{box-shadow:inset 4px 0 var(--c)} .item.is-nc{box-shadow:inset 4px 0 var(--nc);background:var(--nc-soft)} .item.is-na{box-shadow:inset 4px 0 var(--na)}
+  .item .top{display:flex;gap:10px}
+  .id{font-size:12px;font-weight:700;color:var(--muted);min-width:28px;padding-top:2px}
+  .req{font-weight:500}
+  .new{font-size:10px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:1px 6px;border-radius:99px;margin-left:4px;vertical-align:middle}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0 38px}
+  .meta span{font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+  .meta b{font-weight:600;color:var(--ink)}
+  .act{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0 38px;flex-wrap:wrap}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+  .seg button{font:inherit;font-weight:700;font-size:13px;border:0;background:var(--card);color:var(--muted);padding:8px 14px;cursor:pointer;min-width:52px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on.c{background:var(--c);color:#fff} .seg button.on.nc{background:var(--nc);color:#fff} .seg button.on.na{background:var(--na);color:#fff}
+  .act textarea{flex:1;min-width:200px;min-height:40px;resize:vertical;font-size:13.5px;padding:8px 10px}
+  .act textarea.req-note{border-color:var(--nc);background:var(--card)}
+  .warn{font-size:12px;color:var(--nc);font-weight:600;margin:6px 0 0 38px;display:none}
+  .item.is-nc .warn.show{display:block}
+  .summary h2{font-size:16px;margin:0 0 8px}
+  .summary ul{margin:0;padding-left:18px} .summary li{margin:4px 0}
+  .muted{color:var(--muted);font-size:13px}
+  .actions{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:10}
+  .actions .in{max-width:860px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font:inherit;font-weight:600;font-size:14px;border-radius:10px;padding:10px 14px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;flex:1}
+  .btn.ghost{color:var(--nc)}
+  .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:30;padding:20px}
+  .modal.show{display:flex}
+  .modal .box{background:var(--card);border-radius:var(--radius);padding:18px;max-width:380px;width:100%}
+  .modal h3{margin:0 0 6px} .modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+  .hidden{display:none!important}
+  textarea#out{position:fixed;left:-9999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tag">Food Defense · Ufficio Qualità</span>
+    <h1>Checklist Food Defense – Ristorazione scolastica</h1>
+    <p>Rif. nota Marsala Schola · Integrazione al Piano Food Defense/TACCP</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <label class="f">Centro di cottura / plesso<input id="centro" placeholder="es. C.C. Marsala"></label>
+      <label class="f">Data verifica<input id="data" type="date"></label>
+      <label class="f">Compilatore<input id="compilatore" placeholder="Nome e cognome"></label>
+    </div>
+  </div>
+
+  <div class="sticky">
+    <div class="bar"><i id="prog"></i></div>
+    <div class="stats">
+      <span class="pill" id="sDone">0/0</span>
+      <span class="pill c" id="sC">C 0</span>
+      <span class="pill nc" id="sNC">NC 0</span>
+      <span class="pill na" id="sNA">NA 0</span>
+      <div class="filters">
+        <button data-f="all" class="on">Tutti</button>
+        <button data-f="todo">Da fare</button>
+        <button data-f="nc">NC</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="card summary">
+    <h2>Riepilogo non conformità</h2>
+    <div id="ncList" class="muted">Nessuna NC registrata.</div>
+  </div>
+  <p class="muted" style="margin-top:14px">Valori indicativi da allineare a capitolato/ASL: quantità campione per componente (100–150 g) e conservazione (72 h a 0–4 °C). Requisiti contrassegnati <span class="new">INTEGR.</span> = integrazioni rispetto alla nota. I dati restano solo su questo dispositivo: usa «Copia report» per archiviarli.</p>
+</div>
+
+<div class="actions"><div class="in">
+  <button class="btn primary" id="copyReport">Copia report</button>
+  <button class="btn" id="copyCsv">Copia CSV</button>
+  <button class="btn ghost" id="reset">Azzera</button>
+</div></div>
+
+<div class="modal" id="modal"><div class="box">
+  <h3>Azzerare la checklist?</h3>
+  <p class="muted">Esiti, note e intestazione verranno cancellati.</p>
+  <div class="row"><button class="btn" id="mNo">Annulla</button><button class="btn primary" id="mYes" style="flex:none;background:var(--nc);border-color:var(--nc)">Azzera</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<textarea id="out" aria-hidden="true"></textarea>
+
+<script>
+const DATA = [
+ {area:"Personale e accessi", items:[
+  ["1.1","Corrispondenza tra personale in servizio e turni programmati; sostituzioni documentate","Foglio presenze/turni firmato; registro sostituzioni","Giornaliera","Responsabile CC"],
+  ["1.2","Assenza di soggetti estranei o non autorizzati nei locali di preparazione, confezionamento e conservazione","Verifica visiva; registro accessi","Giornaliera","Responsabile CC"],
+  ["1.3","Personale nelle aree critiche identificato (cartellino/badge) e autorizzato a operare","Elenco personale autorizzato aggiornato","Giornaliera","Responsabile CC"],
+  ["1.4","Visitatori, manutentori e fornitori registrati e accompagnati durante la permanenza","Registro visitatori (nome, ente, orario, accompagnatore)","A ogni accesso","Responsabile CC",1],
+  ["1.5","Consegna e restituzione di chiavi e badge tracciate","Registro chiavi","Settimanale","Responsabile CC",1]]},
+ {area:"Ricevimento merci", items:[
+  ["2.1","Imballaggi integri, privi di fori, tagli o segni di apertura","Modulo controllo al ricevimento","A ogni consegna","Addetto ricevimento"],
+  ["2.2","Assenza di segni di manomissione su sigilli, etichette e nastri di chiusura","Modulo ricevimento; foto in caso di anomalia","A ogni consegna","Addetto ricevimento"],
+  ["2.3","Temperature di trasporto e modalità di conservazione conformi","Temperatura registrata su modulo ricevimento","A ogni consegna","Addetto ricevimento"],
+  ["2.4","Mezzo del fornitore pulito e chiuso; conducente identificato","DDT; esito su modulo ricevimento","A ogni consegna","Addetto ricevimento",1],
+  ["2.5","Fornitore presente nell'elenco fornitori qualificati (sorveglianza secondo procedura acquisti)","Elenco fornitori qualificati","A ogni consegna","Addetto ricevimento"]]},
+ {area:"Depositi e stoccaggio", items:[
+  ["3.1","Magazzini e celle frigorifere chiusi quando non presidiati; accesso al solo personale preposto","Verifica visiva","Giornaliera (apertura/chiusura)","Responsabile CC"],
+  ["3.2","Detergenti e prodotti chimici custoditi in locale/armadio chiuso e separato dagli alimenti","Verifica visiva; inventario prodotti chimici","Settimanale","Responsabile CC",1],
+  ["3.3","Punti di prelievo dell'acqua ed eventuali serbatoi protetti da accessi non autorizzati","Verifica visiva","Mensile","Responsabile CC / Manutenzione",1],
+  ["3.4","Impianto di videosorveglianza (se presente) funzionante","Verifica di funzionamento","Settimanale","Responsabile CC",1]]},
+ {area:"Trasporto pasti", items:[
+  ["4.1","Mezzo integro, pulito e chiudibile, verificato prima del carico e allo scarico","Modulo controllo mezzi","A ogni carico","Autista"],
+  ["4.2","Contenitori isotermici chiusi con sigillo numerato; n. sigilli riportato sul documento di consegna","Documento di trasporto pasti con n. sigilli","A ogni carico","Addetto confezionamento / Autista"],
+  ["4.3","Integrità e numerazione dei sigilli verificate all'arrivo nel refettorio","Firma del ricevente sul documento di consegna","A ogni consegna","Personale refettorio",1],
+  ["4.4","Mezzo mai lasciato aperto o incustodito durante il trasporto","Dichiarazione autista sul documento di consegna","A ogni viaggio","Autista"],
+  ["4.5","Addetti a carico, trasporto e consegna identificati e conformi alla programmazione","Elenco autisti/turni","Giornaliera","Responsabile CC / Logistica"]]},
+ {area:"Somministrazione", items:[
+  ["5.1","Carrelli e contenitori non lasciati incustoditi prima della distribuzione","Verifica visiva","Giornaliera","Responsabile refettorio",1],
+  ["5.2","Distribuzione effettuata dal solo personale autorizzato","Elenco personale refettorio","Giornaliera","Responsabile refettorio",1]]},
+ {area:"Campione testimone", items:[
+  ["6.1","Prelievo giornaliero, per ciascuna cucina, del pasto completo (tutte le componenti del menù, diete speciali incluse)","Registro campionature","Giornaliera","Responsabile CC"],
+  ["6.2","Quantità per componente come da capitolato/ASL (indicativamente 100–150 g), in contenitore o sacchetto sterile chiuso","Verifica visiva","Giornaliera","Responsabile CC",1],
+  ["6.3","Etichetta con data, centro, pasto, componente e operatore","Verifica etichetta","Giornaliera","Responsabile CC",1],
+  ["6.4","Conservazione per 72 h a 0–4 °C (o come da capitolato/ASL) in area dedicata e chiusa; disponibilità per gli organi di controllo","Registro temperature frigo campioni","Giornaliera","Responsabile CC"]]},
+ {area:"Anomalie ed emergenze", items:[
+  ["7.1","Personale formato su comportamenti sospetti e canale di segnalazione","Registro formazione","Semestrale e ai nuovi assunti","RAQ",1],
+  ["7.2","In caso di sospetta manomissione: blocco e isolamento del prodotto/lotto, identificato «NON UTILIZZARE»","Modulo NC","A evento","Responsabile CC",1],
+  ["7.3","Conservazione delle prove (imballi, sigilli, campioni, foto) senza manipolazioni","Modulo NC; documentazione fotografica","A evento","Responsabile CC",1],
+  ["7.4","Segnalazione immediata alle Autorità di Pubblica Sicurezza","Orario e riferimenti della segnalazione","A evento","Responsabile CC"],
+  ["7.5","Comunicazione a committente, ASL/SIAN e Ufficio Qualità; valutazione di ritiro/richiamo","Comunicazione scritta","A evento","Responsabile CC / RAQ",1],
+  ["7.6","Apertura di NC e RAC","Modulo NC / RAC","A evento","RAQ",1]]},
+ {area:"Verifica di efficacia", items:[
+  ["8.1","Audit interno o simulazione di evento Food Defense","Rapporto di audit / simulazione","Annuale","RAQ",1]]}
+];
+const KEY="vivenda-fd-checklist-v1";
+let state={esiti:{},note:{},centro:"",data:"",compilatore:""};
+try{const s=localStorage.getItem(KEY); if(s) state=Object.assign(state,JSON.parse(s));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+const ALL=DATA.flatMap(s=>s.items.map(i=>({id:i[0],req:i[1],ev:i[2],fr:i[3],resp:i[4],nw:!!i[5],area:s.area})));
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let filter="all";
+
+function render(){
+  const root=document.getElementById("sections");
+  root.innerHTML=DATA.map((s,si)=>`
+    <details class="sec" open data-sec="${si}">
+      <summary><span class="num">${si+1}</span><span>${esc(s.area)}</span><span class="sec-meta" id="meta${si}"></span><span class="chev">›</span></summary>
+      ${s.items.map(i=>`
+        <div class="item" data-id="${i[0]}">
+          <div class="top"><span class="id">${i[0]}</span><div class="req">${esc(i[1])}${i[5]?' <span class="new">INTEGR.</span>':''}</div></div>
+          <div class="meta"><span>Evidenza: <b>${esc(i[2])}</b></span><span>${esc(i[3])}</span><span>${esc(i[4])}</span></div>
+          <div class="act">
+            <div class="seg">
+              <button class="c" data-v="C">C</button><button class="nc" data-v="NC">NC</button><button class="na" data-v="NA">NA</button>
+            </div>
+            <textarea rows="1" placeholder="Note / azione correttiva">${esc(state.note[i[0]]||"")}</textarea>
+          </div>
+          <div class="warn">Per una NC descrivi l'anomalia e l'azione correttiva.</div>
+        </div>`).join("")}
+    </details>`).join("");
+  root.querySelectorAll(".item").forEach(el=>{
+    const id=el.dataset.id;
+    el.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+      state.esiti[id]= state.esiti[id]===b.dataset.v ? undefined : b.dataset.v;
+      if(!state.esiti[id]) delete state.esiti[id];
+      save(); update();
+    });
+    el.querySelector("textarea").oninput=e=>{state.note[id]=e.target.value; save(); update();};
+  });
+  update();
+}
+
+function update(){
+  let c=0,nc=0,na=0;
+  document.querySelectorAll(".item").forEach(el=>{
+    const id=el.dataset.id, v=state.esiti[id], note=(state.note[id]||"").trim();
+    el.classList.toggle("is-c",v==="C"); el.classList.toggle("is-nc",v==="NC"); el.classList.toggle("is-na",v==="NA");
+    el.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+    el.querySelector("textarea").classList.toggle("req-note",v==="NC"&&!note);
+    el.querySelector(".warn").classList.toggle("show",v==="NC"&&!note);
+    const show= filter==="all" || (filter==="todo"&&!v) || (filter==="nc"&&v==="NC");
+    el.classList.toggle("hidden",!show);
+  });
+  ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;});
+  const done=c+nc+na, tot=ALL.length;
+  document.getElementById("prog").style.width=(done/tot*100)+"%";
+  document.getElementById("sDone").textContent=`${done}/${tot} compilati`;
+  document.getElementById("sC").textContent="C "+c;
+  document.getElementById("sNC").textContent="NC "+nc;
+  document.getElementById("sNA").textContent="NA "+na;
+  DATA.forEach((s,si)=>{
+    const ids=s.items.map(i=>i[0]); const d=ids.filter(x=>state.esiti[x]).length; const n=ids.filter(x=>state.esiti[x]==="NC").length;
+    document.getElementById("meta"+si).innerHTML=`${d}/${ids.length}${n?` · <span class="ncb">${n} NC</span>`:""}`;
+    const sec=document.querySelector(`[data-sec="${si}"]`);
+    sec.classList.toggle("hidden", filter!=="all" && !sec.querySelector(".item:not(.hidden)"));
+  });
+  const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
+  document.getElementById("ncList").innerHTML= ncs.length
+    ? "<ul>"+ncs.map(i=>`<li><b>${i.id}</b> ${esc(i.req)}<br><span class="muted">${esc(state.note[i.id]||"— azione correttiva da indicare")}</span></li>`).join("")+"</ul>"
+    : "Nessuna NC registrata.";
+}
+
+["centro","data","compilatore"].forEach(k=>{
+  const el=document.getElementById(k);
+  if(k==="data"&&!state.data){state.data=new Date().toISOString().slice(0,10);}
+  el.value=state[k]||""; el.oninput=()=>{state[k]=el.value; save();};
+});
+document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{
+  filter=b.dataset.f; document.querySelectorAll(".filters button").forEach(x=>x.classList.toggle("on",x===b)); update();
+});
+
+function toast(t){const el=document.getElementById("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),1800);}
+async function copy(text,msg){
+  try{await navigator.clipboard.writeText(text); toast(msg);}
+  catch(e){const o=document.getElementById("out"); o.value=text; o.select(); try{document.execCommand("copy"); toast(msg);}catch(_){toast("Copia non riuscita");}}
+}
+function fmtDate(d){if(!d)return"";const [y,m,g]=d.split("-");return `${g}/${m}/${y}`;}
+document.getElementById("copyReport").onclick=()=>{
+  let c=0,nc=0,na=0; ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;});
+  const todo=ALL.filter(i=>!state.esiti[i.id]);
+  let t=`CHECKLIST FOOD DEFENSE – RISTORAZIONE SCOLASTICA\nRif. nota Marsala Schola\n\nCentro/plesso: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nCompilatore: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
+  const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
+  if(ncs.length){t+=`\nNON CONFORMITÀ\n`+ncs.map(i=>`- ${i.id} ${i.req}\n  Azione/nota: ${state.note[i.id]||"da indicare"}\n  Responsabile: ${i.resp}`).join("\n")+"\n";}
+  if(todo.length){t+=`\nREQUISITI NON COMPILATI: ${todo.map(i=>i.id).join(", ")}\n`;}
+  t+=`\nDETTAGLIO\n`+DATA.map(s=>`${s.area.toUpperCase()}\n`+s.items.map(i=>`${i[0]} [${state.esiti[i[0]]||"—"}] ${i[1]}${state.note[i[0]]?`\n   Nota: ${state.note[i[0]]}`:""}`).join("\n")).join("\n\n");
+  copy(t,"Report copiato");
+};
+document.getElementById("copyCsv").onclick=()=>{
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const rows=[["Centro","Data","Compilatore","N.","Area","Requisito","Esito","Evidenza","Frequenza","Responsabile","Note"]]
+    .concat(ALL.map(i=>[state.centro,fmtDate(state.data),state.compilatore,i.id,i.area,i.req,state.esiti[i.id]||"",i.ev,i.fr,i.resp,state.note[i.id]||""]));
+  copy(rows.map(r=>r.map(q).join(";")).join("\n"),"CSV copiato (separatore ;)");
+};
+const modal=document.getElementById("modal");
+document.getElementById("reset").onclick=()=>modal.classList.add("show");
+document.getElementById("mNo").onclick=()=>modal.classList.remove("show");
+document.getElementById("mYes").onclick=()=>{
+  state={esiti:{},note:{},centro:"",data:new Date().toISOString().slice(0,10),compilatore:""};
+  save(); ["centro","data","compilatore"].forEach(k=>document.getElementById(k).value=state[k]);
+  modal.classList.remove("show"); render(); toast("Checklist azzerata");
+};
+render();
+</script>
+</body>
+</html>
