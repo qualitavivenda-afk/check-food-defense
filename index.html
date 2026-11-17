@@ -62,6 +62,7 @@
   .act textarea.req-note{border-color:var(--nc);background:var(--card)}
   .warn{font-size:12px;color:var(--nc);font-weight:600;margin:6px 0 0 38px;display:none}
   .item.is-nc .warn.show{display:block}
+  .alert{border-color:var(--nc);background:var(--nc-soft)} .alert h2{font-size:16px;margin:0 0 8px;color:var(--nc)} .alert ol{margin:0;padding-left:20px} .alert li{margin:4px 0}
   .summary h2{font-size:16px;margin:0 0 8px}
   .summary ul{margin:0;padding-left:18px} .summary li{margin:4px 0}
   .muted{color:var(--muted);font-size:13px}
@@ -83,16 +84,16 @@
 <body>
 <div class="wrap">
   <header>
-    <span class="tag">Food Defense · Ufficio Qualità</span>
+    <span class="tag">Food Defense</span>
     <h1>Checklist Food Defense – Ristorazione scolastica</h1>
-    <p>Rif. nota Marsala Schola · Integrazione al Piano Food Defense/TACCP</p>
+    <p>Controllo giornaliero a cura del capo cuoco</p>
   </header>
 
   <div class="card">
     <div class="grid">
-      <label class="f">Centro di cottura / plesso<input id="centro" placeholder="es. C.C. Marsala"></label>
+      <label class="f">Struttura<input id="centro" placeholder="Nome della struttura"></label>
       <label class="f">Data verifica<input id="data" type="date"></label>
-      <label class="f">Compilatore<input id="compilatore" placeholder="Nome e cognome"></label>
+      <label class="f">Capo cuoco<input id="compilatore" placeholder="Nome e cognome"></label>
     </div>
   </div>
 
@@ -103,26 +104,28 @@
       <span class="pill c" id="sC">C 0</span>
       <span class="pill nc" id="sNC">NC 0</span>
       <span class="pill na" id="sNA">NA 0</span>
-      <div class="filters">
-        <button data-f="all" class="on">Tutti</button>
-        <button data-f="todo">Da fare</button>
-        <button data-f="nc">NC</button>
-      </div>
     </div>
   </div>
 
   <div id="sections"></div>
 
   <div class="card summary">
-    <h2>Riepilogo non conformità</h2>
+    <h2>Riepilogo NC</h2>
     <div id="ncList" class="muted">Nessuna NC registrata.</div>
   </div>
-  <p class="muted" style="margin-top:14px">Valori indicativi da allineare a capitolato/ASL: quantità campione per componente (100–150 g) e conservazione (72 h a 0–4 °C). Requisiti contrassegnati <span class="new">INTEGR.</span> = integrazioni rispetto alla nota. I dati restano solo su questo dispositivo: usa «Copia report» per archiviarli.</p>
+  <div class="card alert">
+    <h2>Se noti un'anomalia</h2>
+    <ol>
+      <li>Non usare il prodotto: mettilo da parte con la scritta «NON UTILIZZARE».</li>
+      <li>Non toccare imballi, sigilli o contenitori: sono prove.</li>
+      <li>Avvisa subito le Forze dell'Ordine (112) e l'Ufficio Qualità.</li>
+      <li>Annota l'accaduto nella checklist.</li>
+    </ol>
+  </div>
 </div>
 
 <div class="actions"><div class="in">
   <button class="btn primary" id="copyReport">Copia report</button>
-  <button class="btn" id="copyCsv">Copia CSV</button>
   <button class="btn ghost" id="reset">Azzera</button>
 </div></div>
 
@@ -137,51 +140,29 @@
 <script>
 const DATA = [
  {area:"Personale e accessi", items:[
-  ["1.1","Corrispondenza tra personale in servizio e turni programmati; sostituzioni documentate","Foglio presenze/turni firmato; registro sostituzioni","Giornaliera","Responsabile CC"],
-  ["1.2","Assenza di soggetti estranei o non autorizzati nei locali di preparazione, confezionamento e conservazione","Verifica visiva; registro accessi","Giornaliera","Responsabile CC"],
-  ["1.3","Personale nelle aree critiche identificato (cartellino/badge) e autorizzato a operare","Elenco personale autorizzato aggiornato","Giornaliera","Responsabile CC"],
-  ["1.4","Visitatori, manutentori e fornitori registrati e accompagnati durante la permanenza","Registro visitatori (nome, ente, orario, accompagnatore)","A ogni accesso","Responsabile CC",1],
-  ["1.5","Consegna e restituzione di chiavi e badge tracciate","Registro chiavi","Settimanale","Responsabile CC",1]]},
+  ["1","Il personale in servizio corrisponde ai turni; eventuali sostituzioni sono annotate"],
+  ["2","Nei locali di preparazione, confezionamento e magazzino non ci sono persone estranee o non autorizzate"],
+  ["3","Visitatori, manutentori e fornitori sono registrati e accompagnati"]]},
  {area:"Ricevimento merci", items:[
-  ["2.1","Imballaggi integri, privi di fori, tagli o segni di apertura","Modulo controllo al ricevimento","A ogni consegna","Addetto ricevimento"],
-  ["2.2","Assenza di segni di manomissione su sigilli, etichette e nastri di chiusura","Modulo ricevimento; foto in caso di anomalia","A ogni consegna","Addetto ricevimento"],
-  ["2.3","Temperature di trasporto e modalità di conservazione conformi","Temperatura registrata su modulo ricevimento","A ogni consegna","Addetto ricevimento"],
-  ["2.4","Mezzo del fornitore pulito e chiuso; conducente identificato","DDT; esito su modulo ricevimento","A ogni consegna","Addetto ricevimento",1],
-  ["2.5","Fornitore presente nell'elenco fornitori qualificati (sorveglianza secondo procedura acquisti)","Elenco fornitori qualificati","A ogni consegna","Addetto ricevimento"]]},
- {area:"Depositi e stoccaggio", items:[
-  ["3.1","Magazzini e celle frigorifere chiusi quando non presidiati; accesso al solo personale preposto","Verifica visiva","Giornaliera (apertura/chiusura)","Responsabile CC"],
-  ["3.2","Detergenti e prodotti chimici custoditi in locale/armadio chiuso e separato dagli alimenti","Verifica visiva; inventario prodotti chimici","Settimanale","Responsabile CC",1],
-  ["3.3","Punti di prelievo dell'acqua ed eventuali serbatoi protetti da accessi non autorizzati","Verifica visiva","Mensile","Responsabile CC / Manutenzione",1],
-  ["3.4","Impianto di videosorveglianza (se presente) funzionante","Verifica di funzionamento","Settimanale","Responsabile CC",1]]},
+  ["4","Confezioni e imballi integri: senza fori, tagli, aperture o segni di manomissione"],
+  ["5","Temperature delle merci all'arrivo conformi"]]},
+ {area:"Magazzini e celle", items:[
+  ["6","Magazzini e celle chiusi quando non c'è personale presente"],
+  ["7","Detergenti e prodotti chimici chiusi e separati dagli alimenti"]]},
  {area:"Trasporto pasti", items:[
-  ["4.1","Mezzo integro, pulito e chiudibile, verificato prima del carico e allo scarico","Modulo controllo mezzi","A ogni carico","Autista"],
-  ["4.2","Contenitori isotermici chiusi con sigillo numerato; n. sigilli riportato sul documento di consegna","Documento di trasporto pasti con n. sigilli","A ogni carico","Addetto confezionamento / Autista"],
-  ["4.3","Integrità e numerazione dei sigilli verificate all'arrivo nel refettorio","Firma del ricevente sul documento di consegna","A ogni consegna","Personale refettorio",1],
-  ["4.4","Mezzo mai lasciato aperto o incustodito durante il trasporto","Dichiarazione autista sul documento di consegna","A ogni viaggio","Autista"],
-  ["4.5","Addetti a carico, trasporto e consegna identificati e conformi alla programmazione","Elenco autisti/turni","Giornaliera","Responsabile CC / Logistica"]]},
- {area:"Somministrazione", items:[
-  ["5.1","Carrelli e contenitori non lasciati incustoditi prima della distribuzione","Verifica visiva","Giornaliera","Responsabile refettorio",1],
-  ["5.2","Distribuzione effettuata dal solo personale autorizzato","Elenco personale refettorio","Giornaliera","Responsabile refettorio",1]]},
- {area:"Campione testimone", items:[
-  ["6.1","Prelievo giornaliero, per ciascuna cucina, del pasto completo (tutte le componenti del menù, diete speciali incluse)","Registro campionature","Giornaliera","Responsabile CC"],
-  ["6.2","Quantità per componente come da capitolato/ASL (indicativamente 100–150 g), in contenitore o sacchetto sterile chiuso","Verifica visiva","Giornaliera","Responsabile CC",1],
-  ["6.3","Etichetta con data, centro, pasto, componente e operatore","Verifica etichetta","Giornaliera","Responsabile CC",1],
-  ["6.4","Conservazione per 72 h a 0–4 °C (o come da capitolato/ASL) in area dedicata e chiusa; disponibilità per gli organi di controllo","Registro temperature frigo campioni","Giornaliera","Responsabile CC"]]},
- {area:"Anomalie ed emergenze", items:[
-  ["7.1","Personale formato su comportamenti sospetti e canale di segnalazione","Registro formazione","Semestrale e ai nuovi assunti","RAQ",1],
-  ["7.2","In caso di sospetta manomissione: blocco e isolamento del prodotto/lotto, identificato «NON UTILIZZARE»","Modulo NC","A evento","Responsabile CC",1],
-  ["7.3","Conservazione delle prove (imballi, sigilli, campioni, foto) senza manipolazioni","Modulo NC; documentazione fotografica","A evento","Responsabile CC",1],
-  ["7.4","Segnalazione immediata alle Autorità di Pubblica Sicurezza","Orario e riferimenti della segnalazione","A evento","Responsabile CC"],
-  ["7.5","Comunicazione a committente, ASL/SIAN e Ufficio Qualità; valutazione di ritiro/richiamo","Comunicazione scritta","A evento","Responsabile CC / RAQ",1],
-  ["7.6","Apertura di NC e RAC","Modulo NC / RAC","A evento","RAQ",1]]},
- {area:"Verifica di efficacia", items:[
-  ["8.1","Audit interno o simulazione di evento Food Defense","Rapporto di audit / simulazione","Annuale","RAQ",1]]}
+  ["8","Mezzi integri e puliti, controllati prima del carico"],
+  ["9","Contenitori isotermici chiusi o sigillati prima della partenza"],
+  ["10","Addetti a carico e trasporto conosciuti e previsti dal turno"]]},
+ {area:"Campione del pasto", items:[
+  ["11","Campione del pasto completo prelevato, etichettato e conservato (72 h a 0–4 °C o come da capitolato)"]]},
+ {area:"Anomalie", items:[
+  ["12","Nessuna anomalia o comportamento sospetto rilevato durante il servizio"]]}
 ];
-const KEY="vivenda-fd-checklist-v1";
+const KEY="vivenda-fd-checklist-v2";
 let state={esiti:{},note:{},centro:"",data:"",compilatore:""};
 try{const s=localStorage.getItem(KEY); if(s) state=Object.assign(state,JSON.parse(s));}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
-const ALL=DATA.flatMap(s=>s.items.map(i=>({id:i[0],req:i[1],ev:i[2],fr:i[3],resp:i[4],nw:!!i[5],area:s.area})));
+const ALL=DATA.flatMap(s=>s.items.map(i=>({id:i[0],req:i[1],area:s.area})));
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let filter="all";
 
@@ -192,15 +173,14 @@ function render(){
       <summary><span class="num">${si+1}</span><span>${esc(s.area)}</span><span class="sec-meta" id="meta${si}"></span><span class="chev">›</span></summary>
       ${s.items.map(i=>`
         <div class="item" data-id="${i[0]}">
-          <div class="top"><span class="id">${i[0]}</span><div class="req">${esc(i[1])}${i[5]?' <span class="new">INTEGR.</span>':''}</div></div>
-          <div class="meta"><span>Evidenza: <b>${esc(i[2])}</b></span><span>${esc(i[3])}</span><span>${esc(i[4])}</span></div>
+          <div class="top"><span class="id">${i[0]}</span><div class="req">${esc(i[1])}</div></div>
           <div class="act">
             <div class="seg">
               <button class="c" data-v="C">C</button><button class="nc" data-v="NC">NC</button><button class="na" data-v="NA">NA</button>
             </div>
-            <textarea rows="1" placeholder="Note / azione correttiva">${esc(state.note[i[0]]||"")}</textarea>
+            <textarea rows="1" placeholder="Note">${esc(state.note[i[0]]||"")}</textarea>
           </div>
-          <div class="warn">Per una NC descrivi l'anomalia e l'azione correttiva.</div>
+          <div class="warn">Descrivi cosa hai riscontrato e cosa hai fatto.</div>
         </div>`).join("")}
     </details>`).join("");
   root.querySelectorAll(".item").forEach(el=>{
@@ -241,7 +221,7 @@ function update(){
   });
   const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
   document.getElementById("ncList").innerHTML= ncs.length
-    ? "<ul>"+ncs.map(i=>`<li><b>${i.id}</b> ${esc(i.req)}<br><span class="muted">${esc(state.note[i.id]||"— azione correttiva da indicare")}</span></li>`).join("")+"</ul>"
+    ? "<ul>"+ncs.map(i=>`<li><b>${i.id}</b> ${esc(i.req)}<br><span class="muted">${esc(state.note[i.id]||"— da descrivere")}</span></li>`).join("")+"</ul>"
     : "Nessuna NC registrata.";
 }
 
@@ -249,9 +229,6 @@ function update(){
   const el=document.getElementById(k);
   if(k==="data"&&!state.data){state.data=new Date().toISOString().slice(0,10);}
   el.value=state[k]||""; el.oninput=()=>{state[k]=el.value; save();};
-});
-document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{
-  filter=b.dataset.f; document.querySelectorAll(".filters button").forEach(x=>x.classList.toggle("on",x===b)); update();
 });
 
 function toast(t){const el=document.getElementById("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),1800);}
@@ -263,18 +240,12 @@ function fmtDate(d){if(!d)return"";const [y,m,g]=d.split("-");return `${g}/${m}/
 document.getElementById("copyReport").onclick=()=>{
   let c=0,nc=0,na=0; ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;});
   const todo=ALL.filter(i=>!state.esiti[i.id]);
-  let t=`CHECKLIST FOOD DEFENSE – RISTORAZIONE SCOLASTICA\nRif. nota Marsala Schola\n\nCentro/plesso: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nCompilatore: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
+  let t=`CHECKLIST FOOD DEFENSE – CONTROLLO GIORNALIERO\n\nStruttura: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nCapo cuoco: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
   const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
-  if(ncs.length){t+=`\nNON CONFORMITÀ\n`+ncs.map(i=>`- ${i.id} ${i.req}\n  Azione/nota: ${state.note[i.id]||"da indicare"}\n  Responsabile: ${i.resp}`).join("\n")+"\n";}
+  if(ncs.length){t+=`\nNON CONFORMITÀ\n`+ncs.map(i=>`- ${i.id}. ${i.req}\n  Nota: ${state.note[i.id]||"da descrivere"}`).join("\n")+"\n";}
   if(todo.length){t+=`\nREQUISITI NON COMPILATI: ${todo.map(i=>i.id).join(", ")}\n`;}
-  t+=`\nDETTAGLIO\n`+DATA.map(s=>`${s.area.toUpperCase()}\n`+s.items.map(i=>`${i[0]} [${state.esiti[i[0]]||"—"}] ${i[1]}${state.note[i[0]]?`\n   Nota: ${state.note[i[0]]}`:""}`).join("\n")).join("\n\n");
+  t+=`\nDETTAGLIO\n`+DATA.map(s=>`${s.area.toUpperCase()}\n`+s.items.map(i=>`${i[0]}. [${state.esiti[i[0]]||"—"}] ${i[1]}${state.note[i[0]]?`\n   Nota: ${state.note[i[0]]}`:""}`).join("\n")).join("\n\n");
   copy(t,"Report copiato");
-};
-document.getElementById("copyCsv").onclick=()=>{
-  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
-  const rows=[["Centro","Data","Compilatore","N.","Area","Requisito","Esito","Evidenza","Frequenza","Responsabile","Note"]]
-    .concat(ALL.map(i=>[state.centro,fmtDate(state.data),state.compilatore,i.id,i.area,i.req,state.esiti[i.id]||"",i.ev,i.fr,i.resp,state.note[i.id]||""]));
-  copy(rows.map(r=>r.map(q).join(";")).join("\n"),"CSV copiato (separatore ;)");
 };
 const modal=document.getElementById("modal");
 document.getElementById("reset").onclick=()=>modal.classList.add("show");
