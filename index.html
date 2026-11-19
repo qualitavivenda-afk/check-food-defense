@@ -125,8 +125,19 @@
 </div>
 
 <div class="actions"><div class="in">
-  <button class="btn primary" id="copyReport">Copia report</button>
+  <button class="btn primary" id="savePdf">Salva PDF</button>
+  <button class="btn primary" id="sharePdf" style="background:var(--ink);border-color:var(--ink)">Invia PDF</button>
   <button class="btn ghost" id="reset">Azzera</button>
+</div></div>
+
+<div class="modal" id="shareModal"><div class="box">
+  <h3>Invia il PDF</h3>
+  <p class="muted">Il PDF è stato salvato nei download. Apri la mail o WhatsApp e allega il file salvato.</p>
+  <div class="row" style="flex-wrap:wrap">
+    <a class="btn" id="mailLink" href="#">Mail</a>
+    <a class="btn" id="waLink" href="#" target="_blank" rel="noopener">WhatsApp</a>
+    <button class="btn primary" id="shareClose" style="flex:none">Chiudi</button>
+  </div>
 </div></div>
 
 <div class="modal" id="modal"><div class="box">
@@ -137,6 +148,8 @@
 <div class="toast" id="toast"></div>
 <textarea id="out" aria-hidden="true"></textarea>
 
+<script src="lib/jspdf.umd.min.js"></script>
+<script src="lib/jspdf.plugin.autotable.min.js"></script>
 <script>
 const DATA = [
  {area:"Personale e accessi", items:[
@@ -237,15 +250,75 @@ async function copy(text,msg){
   catch(e){const o=document.getElementById("out"); o.value=text; o.select(); try{document.execCommand("copy"); toast(msg);}catch(_){toast("Copia non riuscita");}}
 }
 function fmtDate(d){if(!d)return"";const [y,m,g]=d.split("-");return `${g}/${m}/${y}`;}
-document.getElementById("copyReport").onclick=()=>{
-  let c=0,nc=0,na=0; ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;});
-  const todo=ALL.filter(i=>!state.esiti[i.id]);
-  let t=`CHECKLIST FOOD DEFENSE – CONTROLLO GIORNALIERO\n\nStruttura: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nReferente di struttura: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
-  const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
-  if(ncs.length){t+=`\nNON CONFORMITÀ\n`+ncs.map(i=>`- ${i.id}. ${i.req}\n  Nota: ${state.note[i.id]||"da descrivere"}`).join("\n")+"\n";}
-  if(todo.length){t+=`\nREQUISITI NON COMPILATI: ${todo.map(i=>i.id).join(", ")}\n`;}
-  t+=`\nDETTAGLIO\n`+DATA.map(s=>`${s.area.toUpperCase()}\n`+s.items.map(i=>`${i[0]}. [${state.esiti[i[0]]||"—"}] ${i[1]}${state.note[i[0]]?`\n   Nota: ${state.note[i[0]]}`:""}`).join("\n")).join("\n\n");
-  copy(t,"Report copiato");
+function counts(){let c=0,nc=0,na=0; ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;}); return {c,nc,na,todo:ALL.length-c-nc-na};}
+function checkReady(){
+  if(!state.centro.trim()||!state.compilatore.trim()){toast("Inserisci struttura e referente"); return false;}
+  const miss=ALL.filter(i=>state.esiti[i.id]==="NC"&&!(state.note[i.id]||"").trim());
+  if(miss.length){toast("Descrivi le NC: domanda "+miss.map(i=>i.id).join(", ")); return false;}
+  if(!window.jspdf){toast("Generatore PDF non disponibile"); return false;}
+  return true;
+}
+function pdfName(){
+  const s=(state.centro||"struttura").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
+  return `FoodDefense_${s}_${state.data||"senza-data"}.pdf`;
+}
+function buildPdf(){
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4"});
+  const W=210, M=14, green=[31,111,84], red=[192,57,43];
+  doc.setFillColor(...green); doc.rect(0,0,W,24,"F");
+  doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(15);
+  doc.text("Checklist Food Defense",M,11);
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+  doc.text("Controllo giornaliero a cura del referente di struttura",M,18);
+  doc.setTextColor(30);
+  const k=counts();
+  doc.autoTable({startY:30,theme:"plain",margin:{left:M,right:M},styles:{fontSize:10,cellPadding:1.4},
+    columnStyles:{0:{fontStyle:"bold",cellWidth:48}},
+    body:[["Struttura",state.centro],["Data verifica",fmtDate(state.data)],["Referente di struttura",state.compilatore],
+          ["Esito",`C ${k.c}   ·   NC ${k.nc}   ·   NA ${k.na}   ·   Non compilati ${k.todo}   (tot. ${ALL.length})`]]});
+  const body=[];
+  DATA.forEach(s=>{
+    body.push([{content:s.area.toUpperCase(),colSpan:4,styles:{fillColor:[229,242,236],textColor:green,fontStyle:"bold"}}]);
+    s.items.forEach(i=>body.push([i[0],i[1],state.esiti[i[0]]||"—",state.note[i[0]]||""]));
+  });
+  doc.autoTable({startY:doc.lastAutoTable.finalY+4,margin:{left:M,right:M},
+    head:[["N.","Requisito","Esito","Note"]],body,
+    headStyles:{fillColor:green,textColor:255,fontStyle:"bold"},
+    styles:{fontSize:9,cellPadding:2,valign:"top",lineColor:[226,232,229],lineWidth:0.2},
+    columnStyles:{0:{cellWidth:9,halign:"center"},1:{cellWidth:92},2:{cellWidth:15,halign:"center",fontStyle:"bold"},3:{cellWidth:"auto"}},
+    didParseCell:d=>{ if(d.section!=="body"||!Array.isArray(d.row.raw)) return;
+      if(d.row.raw[2]==="NC") d.cell.styles.fillColor=[251,231,228];
+      if(d.column.index===2){ if(d.cell.raw==="NC") d.cell.styles.textColor=red; else if(d.cell.raw==="C") d.cell.styles.textColor=[46,139,87]; } }
+  });
+  let y=doc.lastAutoTable.finalY+8;
+  if(y>250){doc.addPage(); y=20;}
+  doc.setFontSize(10); doc.setFont("helvetica","bold"); doc.text("Firma del referente di struttura",M,y);
+  doc.setDrawColor(150); doc.line(M,y+12,M+80,y+12);
+  doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(120);
+  const n=doc.getNumberOfPages();
+  for(let p=1;p<=n;p++){doc.setPage(p); doc.text(`Generato il ${new Date().toLocaleString("it-IT")}  ·  Pagina ${p} di ${n}`,M,290);}
+  return doc;
+}
+document.getElementById("savePdf").onclick=()=>{
+  if(!checkReady()) return;
+  buildPdf().save(pdfName()); toast("PDF salvato");
+};
+const shareModal=document.getElementById("shareModal");
+document.getElementById("shareClose").onclick=()=>shareModal.classList.remove("show");
+document.getElementById("sharePdf").onclick=async()=>{
+  if(!checkReady()) return;
+  const doc=buildPdf(); const name=pdfName();
+  const file=new File([doc.output("blob")],name,{type:"application/pdf"});
+  const k=counts();
+  const text=`Checklist Food Defense – ${state.centro} – ${fmtDate(state.data)}. Esito: C ${k.c}, NC ${k.nc}, NA ${k.na}.`;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:"Checklist Food Defense",text}); return;}
+    catch(e){ if(e.name==="AbortError") return; }
+  }
+  doc.save(name);
+  document.getElementById("mailLink").href=`mailto:?subject=${encodeURIComponent("Checklist Food Defense – "+state.centro+" – "+fmtDate(state.data))}&body=${encodeURIComponent(text+"\n\nIn allegato il PDF della checklist.")}`;
+  document.getElementById("waLink").href=`https://wa.me/?text=${encodeURIComponent(text)}`;
+  shareModal.classList.add("show");
 };
 const modal=document.getElementById("modal");
 document.getElementById("reset").onclick=()=>modal.classList.add("show");
