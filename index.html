@@ -86,14 +86,14 @@
   <header>
     <span class="tag">Food Defense</span>
     <h1>Checklist Food Defense – Ristorazione scolastica</h1>
-    <p>Controllo giornaliero a cura del capo cuoco</p>
+    <p>Controllo giornaliero a cura del referente di struttura</p>
   </header>
 
   <div class="card">
     <div class="grid">
       <label class="f">Struttura<input id="centro" placeholder="Nome della struttura"></label>
       <label class="f">Data verifica<input id="data" type="date"></label>
-      <label class="f">Capo cuoco<input id="compilatore" placeholder="Nome e cognome"></label>
+      <label class="f">Referente di struttura<input id="compilatore" placeholder="Nome e cognome"></label>
     </div>
   </div>
 
@@ -240,7 +240,7 @@ function fmtDate(d){if(!d)return"";const [y,m,g]=d.split("-");return `${g}/${m}/
 document.getElementById("copyReport").onclick=()=>{
   let c=0,nc=0,na=0; ALL.forEach(i=>{const v=state.esiti[i.id]; if(v==="C")c++; else if(v==="NC")nc++; else if(v==="NA")na++;});
   const todo=ALL.filter(i=>!state.esiti[i.id]);
-  let t=`CHECKLIST FOOD DEFENSE – CONTROLLO GIORNALIERO\n\nStruttura: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nCapo cuoco: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
+  let t=`CHECKLIST FOOD DEFENSE – CONTROLLO GIORNALIERO\n\nStruttura: ${state.centro||"-"}\nData verifica: ${fmtDate(state.data)||"-"}\nReferente di struttura: ${state.compilatore||"-"}\n\nEsito: C ${c} · NC ${nc} · NA ${na} · Non compilati ${todo.length} (tot. ${ALL.length})\n`;
   const ncs=ALL.filter(i=>state.esiti[i.id]==="NC");
   if(ncs.length){t+=`\nNON CONFORMITÀ\n`+ncs.map(i=>`- ${i.id}. ${i.req}\n  Nota: ${state.note[i.id]||"da descrivere"}`).join("\n")+"\n";}
   if(todo.length){t+=`\nREQUISITI NON COMPILATI: ${todo.map(i=>i.id).join(", ")}\n`;}
